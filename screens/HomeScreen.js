@@ -29,7 +29,7 @@ export default function HomeScreen() {
       querySnapshot.forEach(doc => {
         messages.push({ id: doc.id, ...doc.data() });
       });
-      console.log("Current messages: ", messages);
+      console.log(" Current messages: ", messages);
       setMessages([...messages]);
     });
   }, []);
