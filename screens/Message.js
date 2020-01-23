@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { ExpoConfigView } from "@expo/samples";
-
 import {
   TextInput,
   Image,
@@ -13,73 +11,45 @@ import {
   Button
 } from "react-native";
 
+import { MonoText } from "../components/StyledText";
+import db from "../db.js";
 import firebase from "@firebase/app";
 import "firebase/auth";
-import db from "../db";
 
-export default function SettingsScreen() {
-  const [displayName, setDisplayName] = useState("");
-  const [photoURL, setPhotoURL] = useState("");
+import "firebase/database";
 
-  const handleSet = async () => {
+export default ({ message, handleEdit }) => {
+  const [from, setFrom] = useState(null);
+
+  handleSet = async () => {
     const info = await db
-      .collection("users")
-      .doc(firebase.auth().currentUser.uid)
-      .get();
-    setDisplayName(info.displayName);
-    setPhotoURL(info.photoURL);
+      .collection(`users`)
+      .doc(message.from)
+      .get(snapShot => {
+        console.log("message.from info", snapShot.data());
+      });
   };
 
   useEffect(() => {
-    // setDisplayName(firebase.auth().currentUser.displayName);
-    // setPhotoURL(firebase.auth().currentUser.photoURL);
     handleSet();
   }, []);
 
-  const handleSave = () => {
-    db.collection("users")
-      .doc(firebase.auth().currentUser.uid)
-      .update({ displayName, photoURL });
-
-    // firebase.auth().currentUser.updateProfile()({
-    //   displayName,
-    //   photoURL
-    // });
+  const handleDelete = message => {
+    db.collection("messages")
+      .doc(message.id)
+      .delete();
   };
 
   return (
-    <View style={styles.container}>
-      <Text>Hi</Text>
-      <TextInput
-        style={{
-          height: 40,
-          borderColor: "gray",
-          borderLeftWidth: 1,
-          fontSize: 18
-        }}
-        onChangeText={setDisplayName}
-        placeholder="DisplayName"
-        value={displayName}
-      />
+    <>
+      <Text style={styles.getStartedText}>
+        {message.from} - {message.to} - {message.text}
+      </Text>
 
-      <TextInput
-        style={{
-          height: 40,
-          borderColor: "gray",
-          borderLeftWidth: 1,
-          fontSize: 18
-        }}
-        onChangeText={setPhotoURL}
-        placeholder="Photo URL"
-        value={photoURL}
-      />
-
-      <Button title="Save" onPress={handleSave} />
-    </View>
+      <Button title="Edit" onPress={() => handleEdit(message)} />
+      <Button title="X" onPress={() => handleDelete(message)} />
+    </>
   );
-}
-SettingsScreen.navigationOptions = {
-  title: "Settings"
 };
 
 const styles = StyleSheet.create({

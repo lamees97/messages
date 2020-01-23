@@ -16,6 +16,7 @@ import { MonoText } from "../components/StyledText";
 import db from "../db.js";
 import firebase from "@firebase/app";
 import "firebase/auth";
+import Message from "./Message.js";
 
 export default function HomeScreen() {
   const [messages, setMessages] = useState([]);
@@ -36,11 +37,11 @@ export default function HomeScreen() {
     });
   }, []);
 
-  const handleDelete = message => {
-    db.collection("messages")
-      .doc(message.id)
-      .delete();
-  };
+  // const handleDelete = message => {
+  //   db.collection("messages")
+  //     .doc(message.id)
+  //     .delete();
+  // };
   // the id is for checking only
   const handleSend = () => {
     const from = firebase.auth().currentUser.uid;
@@ -61,6 +62,10 @@ export default function HomeScreen() {
     setTo(message.to);
     setId(message.id);
   };
+
+  const handleLogout = () => {
+    firebase.auth().signOut();
+  };
   return (
     <View style={styles.container}>
       <ScrollView
@@ -69,14 +74,11 @@ export default function HomeScreen() {
         keyboardShouldPersistTaps="always"
       >
         {messages.map((message, i) => (
-          <View style={styles.getStartedText} key={i}>
-            <Text>
-              {message.from} - {message.text}
-            </Text>
-            <Button title="X" onPress={() => handleDelete(message)} />
-            <Button title="Edit" onPress={() => handleEdit(message)} />
-          </View>
+          <Message key={i} message={message} handleEdit={handleEdit} />
         ))}
+
+        <Button title="Edit" onPress={() => handleEdit(message)} />
+        <Button title="X" onPress={() => handleDelete(message)} />
       </ScrollView>
       {/* <TextInput
         style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
@@ -97,6 +99,7 @@ export default function HomeScreen() {
         value={to}
       />
       <Button title="Send" onPress={() => handleSend()} />
+      <Button title="Logout" onPress={() => handleLogout()} />
     </View>
   );
 }
@@ -183,7 +186,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4
   },
   getStartedText: {
-    fontSize: 17,
+    fontSize: 24,
     color: "rgba(96,100,109, 1)",
     lineHeight: 24,
     textAlign: "center"
