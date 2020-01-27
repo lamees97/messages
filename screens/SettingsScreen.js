@@ -16,18 +16,36 @@ import {
 import firebase from "@firebase/app";
 import "firebase/auth";
 import db from "../db";
+import * as ImagePicker from "expo-image-picker";
 
 export default function SettingsScreen() {
+  const [hasCameraRollPermission, setHasCameraRollPermission] = useState(false);
+
   const [displayName, setDisplayName] = useState("");
   const [photoURL, setPhotoURL] = useState("");
 
+  const askPermission = async () => {
+    const { status } = await ImagePicker.requestCameraRollPermissionsAsync();
+    setHasCameraRollPermission(status === "granted");
+  };
+  useEffect(() => {
+    askPermission();
+  }, []);
+
+  const handlePickImage = () => {
+    //show camera roll, allow user to select, set photoURL
+    // - use firebase storage
+    // - upload selected image to default buket, naming with uid
+    // - get url and set photoURL
+  };
+
   const handleSet = async () => {
-    const info = await db
+    const snap = await db
       .collection("users")
       .doc(firebase.auth().currentUser.uid)
       .get();
-    setDisplayName(info.displayName);
-    setPhotoURL(info.photoURL);
+    setDisplayName(snap.data().displayName);
+    setPhotoURL(snap.data().photoURL);
   };
 
   useEffect(() => {
@@ -39,7 +57,7 @@ export default function SettingsScreen() {
   const handleSave = () => {
     db.collection("users")
       .doc(firebase.auth().currentUser.uid)
-      .update({ displayName, photoURL });
+      .set({ displayName, photoURL });
 
     // firebase.auth().currentUser.updateProfile()({
     //   displayName,
@@ -49,6 +67,9 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
+      {photoURL !== "" && (
+        <Image style={{ width: 50, height: 50 }} source={{ uri: photoURL }} />
+      )}
       <Text>Hi</Text>
       <TextInput
         style={{
@@ -73,6 +94,7 @@ export default function SettingsScreen() {
         placeholder="Photo URL"
         value={photoURL}
       />
+      <Button title="Pick Image" onPress={handlePickImage} />
 
       <Button title="Save" onPress={handleSave} />
     </View>

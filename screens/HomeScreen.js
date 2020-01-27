@@ -37,12 +37,12 @@ export default function HomeScreen() {
     });
   }, []);
 
-  // const handleDelete = message => {
-  //   db.collection("messages")
-  //     .doc(message.id)
-  //     .delete();
-  // };
-  // the id is for checking only
+  const handleDelete = message => {
+    db.collection("messages")
+      .doc(message.id)
+      .delete();
+  };
+
   const handleSend = () => {
     const from = firebase.auth().currentUser.uid;
     if (id) {

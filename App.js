@@ -28,9 +28,15 @@ export default function App(props) {
     return firebase.auth().onAuthStateChanged(setUser);
   }, []);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     await firebase.auth().createUserWithEmailAndPassword(email, password);
-    db.collection('users').doc(firebase.auth().currentUser.uid).add({displayName:"",photoURL })
+    db.collection("users")
+      .doc(firebase.auth().currentUser.uid)
+      .add({
+        displayName: email,
+        photoURL:
+          "https://cdn2.iconfinder.com/data/icons/avatar-profile/429/contact_profile_user_default_avatar_female_suit-512.png"
+      });
   };
 
   const handleLogin = () => {

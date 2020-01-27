@@ -13,42 +13,48 @@ import {
 
 import { MonoText } from "../components/StyledText";
 import db from "../db.js";
-import firebase from "@firebase/app";
-import "firebase/auth";
+// import firebase from "@firebase/app";
+// import "firebase/auth";
 
-import "firebase/database";
+// import "firebase/database";
 
 export default ({ message, handleEdit }) => {
-  const [from, setFrom] = useState(null);
+  const [user, setUser] = useState(null);
 
-  handleSet = async () => {
-    const info = await db
+  const handleUser = async () => {
+    const snap = await db
       .collection(`users`)
       .doc(message.from)
-      .get(snapShot => {
-        console.log("message.from info", snapShot.data());
-      });
+      .get();
+    console.log("message.from info", snap.data());
+    setUser(snap.data());
   };
 
   useEffect(() => {
-    handleSet();
+    handleUser();
   }, []);
 
   const handleDelete = message => {
-    db.collection("messages")
+    db.collection("mes sages")
       .doc(message.id)
       .delete();
   };
 
   return (
-    <>
-      <Text style={styles.getStartedText}>
-        {message.from} - {message.to} - {message.text}
-      </Text>
+    user && (
+      <View style={{ paddingTop: 50, flexDirection: "row" }}>
+        <Image
+          style={{ width: 50, height: 50 }}
+          source={{ uri: user.photoURL }}
+        ></Image>
+        <Text style={styles.getStartedText}>
+          {user.displayName} - {message.to} - {message.text}
+        </Text>
 
-      <Button title="Edit" onPress={() => handleEdit(message)} />
-      <Button title="X" onPress={() => handleDelete(message)} />
-    </>
+        <Button title="Edit" onPress={() => handleEdit(message)} />
+        <Button title="X" onPress={() => handleDelete(message)} />
+      </View>
+    )
   );
 };
 
